@@ -16,15 +16,13 @@ ipcMain.on('criar', (event, data) => {
           throw error1;
         }
 
-        let qtt = 0
-
         if(data.tipo === "fila") { // Cria fila
-          channel.assertQueue(data.nome, {durable: false}, function (arr, ok) {
+          channel.assertQueue(data.name, {durable: false}, function (arr, ok) {
             console.log(ok);
             qtt = ok["messageCount"]
           });
         } else { // Cria tópico
-          channel.assertExchange(data.nome, 'fanout', { // Fanout é o broadcast no RabbitMQ
+          channel.assertExchange(data.name, 'fanout', { // Fanout é o broadcast no RabbitMQ
             durable: false
           });
         }
@@ -55,10 +53,10 @@ ipcMain.on('remover', (event, data) => {
       }
 
       if(data.tipo === "fila") {
-        channel.deleteQueue(data.nome)
+        channel.deleteQueue(data.name)
 
       } else {
-        channel.deleteExchange(data.nome)
+        channel.deleteExchange(data.name)
       }
     });
   });

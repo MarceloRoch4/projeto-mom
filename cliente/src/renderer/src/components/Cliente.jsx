@@ -13,16 +13,6 @@ export default function Cliente() {
     }
   }
 
-  const topicosPadroesRabbitMQ = [
-    "",
-    "amq.direct",
-    "amq.fanout",
-    "amq.headers",
-    "amq.match",
-    "amq.rabbitmq.trace",
-    "amq.topic"
-  ]
-
   const [usuario, setUsuario] = useState("");
   const [adicionarNome, setAdicionarNome] = useState("");
   const [adicionarTipo, setAdicionarTipo] = useState("fila");
@@ -32,28 +22,28 @@ export default function Cliente() {
   const [tipoChat, setTipoChat] = useState('')
   const [mostrarChat, setMostrarChat] = useState(false);
   const [conversas, setConversas] = useState({})
+  const [mensagemDeErro, setMensagemDeErro] = useState('')
 
   const [amigos, setAmigos] = useState(new Set());
   const [topicos, setTopicos] = useState(new Set());
 
   useEffect(() => {
     window.api.receive("atualizarMensagens", (mensagem) => {
-      console.log(mensagem)
-      debugger
-      if (!Object.keys(conversas).includes(mensagem.nome)) {
-        if (mensagem.tipo === 'topico') {
-          setTopicos(topicos => new Set([...topicos, mensagem.nome]))
-        } else {
-          setAmigos(amigos => new Set([...amigos, mensagem.nome]))
-        }
+      if (!Object.keys(conversas).includes(mensagem.nome) && mensagem.tipo === 'fila') {
+        setAmigos(amigos => new Set([...amigos, mensagem.nome]))
       }
 
-      novaMensagem(mensagem.nome, mensagem);
+      if (mensagem.tipo === 'fila') {
+        novaMensagem(mensagem.nome, mensagem);
+      } else {
+        novaMensagem(mensagem.destinatario, mensagem);
+      }
+
     })
   }, [])
 
   function novaConversa(destinatario) {
-    setConversas({[destinatario]: []})
+    setConversas((prevConversas) => ({...prevConversas, [destinatario]: []}));
   }
 
   function novaMensagem(destinatario, mensagem) {
@@ -76,9 +66,20 @@ export default function Cliente() {
     setMostrarModal(false);
   }
 
-  function adicionar() {
+  async function checarSeTopicoExiste(nomeTopico) {
+    const topicos = await fetch(TOPIC_URL, FETCH_INIT).then(res => res.json())
+    debugger
+    return topicos.map(topico => topico.name).includes(nomeTopico);
+  }
+
+  async function adicionar() {
     if (adicionarNome.length === 0) return
     if (topicos.has(adicionarNome) || amigos.has(adicionarNome)) return
+
+    if (!await checarSeTopicoExiste(adicionarNome)) {
+      setMensagemDeErro("Tópico não existe!");
+      return
+    }
 
     if (adicionarTipo === 'topico') {
       const data = {"usuario": usuario, "topico": adicionarNome}
@@ -87,38 +88,23 @@ export default function Cliente() {
     } else {
       setAmigos(amigos => new Set([...amigos, adicionarNome]))
     }
-
-    console.log(amigos)
-
     novaConversa(adicionarNome)
     setMostrarCaixa(false)
   }
 
-  async function buscarFilasETopicos() {
-    const filas = await fetch(QUEUE_URL, FETCH_INIT).then(res => res.json());
-    const topicos = await fetch(TOPIC_URL, FETCH_INIT).then(res => res.json()).then(
-      topicos => topicos.filter(topico => !topicosPadroesRabbitMQ.includes(topico.name)) // Desconsidera topicos padroes do RabbitMQ
-    );
-
-    console.log(filas, topicos);
-    setUsuarios(filas);
-    setTopicos(topicos);
-
-    let convs = {}
-    for (let fila of filas) {
-      convs[fila.name] = conversas[fila] ?? [];
-    }
-
-    for (let topico of topicos) {
-      convs[topico.name] = conversas[topico] ?? [];
-    }
-
-    setConversas(convs);
-  }
+  useEffect(() => {
+    console.log(topicos)
+    console.log(conversas)
+  }, [topicos, conversas])
 
   function abrirCaixa(tipo) {
     setAdicionarTipo(tipo);
     setMostrarCaixa(true);
+  }
+
+  function fecharCaixa() {
+    setMensagemDeErro('');
+    setMostrarCaixa(false);
   }
 
   return (
@@ -146,9 +132,10 @@ export default function Cliente() {
             placeholder={`Nome do ${adicionarTipo === 'fila' ? 'amigo' : 'tópico'}`}
             onChange={(event) => setAdicionarNome(event.target.value)}
           />
+          <h4 style={{color: '#b93939'}} className="mensagem-erro">{mensagemDeErro}</h4>
           <div className="acoes-modal">
-            <button style={{backgroundColor: '#66E762'}} onClick={adicionar}>Adicionar {adicionarTipo === 'fila' ? 'amigo' : 'tópico'}</button>
-            <button style={{backgroundColor: '#c27182'}} onClick={() => setMostrarCaixa(false)}>Cancelar</button>
+            <button style={{backgroundColor: '#61c75d'}} onClick={adicionar}>Adicionar {adicionarTipo === 'fila' ? 'amigo' : 'tópico'}</button>
+            <button style={{backgroundColor: '#e1e1e1'}} onClick={fecharCaixa}>Cancelar</button>
           </div>
         </div>
       }
@@ -174,7 +161,7 @@ export default function Cliente() {
               <li key={topico} className="linha" onClick={() => abrirChat(topico, 'topico')}>
                 {topico}
               </li>
-            ) : <span>Não existem tópicos criados.</span>
+            ) : <span>Você não assinou nenhum tópico.</span>
           }
         </ul>
       </div>

@@ -40,16 +40,18 @@ ipcMain.on('enviarMensagem', (event, dados) => {
 ipcMain.on('consumirMensagens', (event, fila) => {
   const window = require('electron-main-window').getMainWindow();
 
-  console.log('aqui')
   amqp.connect('amqp://localhost', function(error0, connection) {
 
     if (error0) {
+      console.log(error0)
+      console.log("deu errosss sss")
       throw error0;
     }
 
     connection.createChannel(function(error1, channel) {
-
       if (error1) {
+        console.log(error1)
+        console.log("deu erro  sss")
         throw error1;
       }
 

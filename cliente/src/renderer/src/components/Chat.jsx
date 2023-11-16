@@ -19,7 +19,7 @@ export default function Chat({tipo, usuario, destinatario, mensagens, adicionarM
     }
 
     window.api.send('enviarMensagem', data)
-    adicionarMensagem(destinatario, data)
+    if (tipo === 'fila') adicionarMensagem(destinatario, data)
     setMensagem('');
   }
 

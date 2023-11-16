@@ -29,10 +29,17 @@
 .linha {
   display: flex;
   flex-direction: row;
+  align-items: center;
   justify-content: space-between;
-  padding: 5px;
+  padding: 10px;
   border-radius: 10px;
   background-color: #e5e3e3;
+}
+
+.linha-info {
+  display: flex;
+  align-items: center;
+  gap: 20px;
 }
 
 .modal {
