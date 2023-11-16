@@ -1,0 +1,83 @@
+.chat-modal {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  gap: 20px;
+  justify-content: space-between;
+
+  position: absolute;
+  height: 80%;
+  width: 80%;
+  background-color: #e0e0e0;
+  border-radius: 20px;
+
+  box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.3);
+}
+
+.header {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.chat {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  height: 100%;
+  overflow-y: scroll;
+}
+
+.ancora {
+  height: 1px;
+  overflow-anchor: auto;
+}
+
+.voltar {
+  align-self: start;
+}
+
+.acoes > input {
+  width: 100%;
+}
+
+.acoes > button {
+  padding-left: 40px;
+  padding-right: 40px;
+}
+
+.acoes {
+  display: flex;
+  width: 100%;
+  gap: 10px;
+}
+
+
+.mensagem {
+  padding: 10px;
+  border-radius: 10px;
+  max-width: fit-content;
+
+  overflow-anchor: none;
+}
+
+.mensagem-amigo {
+  background-color: #bec7bb;
+  margin-right: 50px;
+}
+
+.mensagem-eu {
+  background-color: #b8e1a3;
+  align-self: end;
+  margin-left: 50px;
+}
+
+.mensagem-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: fit-content;
+}
+
