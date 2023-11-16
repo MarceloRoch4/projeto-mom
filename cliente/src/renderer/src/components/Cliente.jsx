@@ -29,6 +29,7 @@ export default function Cliente() {
 
   useEffect(() => {
     window.api.receive("atualizarMensagens", (mensagem) => {
+      console.log(mensagem)
       if (!Object.keys(conversas).includes(mensagem.nome) && mensagem.tipo === 'fila') {
         setAmigos(amigos => new Set([...amigos, mensagem.nome]))
       }
@@ -76,7 +77,7 @@ export default function Cliente() {
     if (adicionarNome.length === 0) return
     if (topicos.has(adicionarNome) || amigos.has(adicionarNome)) return
 
-    if (!await checarSeTopicoExiste(adicionarNome)) {
+    if (adicionarTipo === 'topico' && !await checarSeTopicoExiste(adicionarNome)) {
       setMensagemDeErro("Tópico não existe!");
       return
     }
@@ -88,14 +89,9 @@ export default function Cliente() {
     } else {
       setAmigos(amigos => new Set([...amigos, adicionarNome]))
     }
-    novaConversa(adicionarNome)
-    setMostrarCaixa(false)
+    novaConversa(adicionarNome);
+    fecharCaixa();
   }
-
-  useEffect(() => {
-    console.log(topicos)
-    console.log(conversas)
-  }, [topicos, conversas])
 
   function abrirCaixa(tipo) {
     setAdicionarTipo(tipo);

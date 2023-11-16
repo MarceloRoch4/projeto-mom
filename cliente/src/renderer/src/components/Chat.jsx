@@ -43,7 +43,7 @@ export default function Chat({tipo, usuario, destinatario, mensagens, adicionarM
               return (
                 mensagem.nome !== usuario ?
                 <li key={idMensagem++} className="mensagem mensagem-amigo">
-                  {mensagem.mensagem}
+                  {tipo === 'topico' ? <b>{mensagem.nome}: </b> : ''}{mensagem.mensagem}
                 </li>
                   :
                 <li key={idMensagem++} className="mensagem mensagem-eu">
